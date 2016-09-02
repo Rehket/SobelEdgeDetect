@@ -39,11 +39,11 @@ void toPGM(int rows, int cols, pVector** data, char* name, int flag = VALUE)
 		for (j = 0; j<cols; j++)
 		{
 			if (flag == 0)
-				out << (char)data[i][j].value;
+				out << (unsigned char)data[i][j].value;
 			if (flag == 1)
-				out << (char)data[i][j].low;
+				out << data[i][j].low;
 			if (flag == 2)
-				out << (char)data[i][j].high;
+				out << data[i][j].high;
 
 		}
 	}
@@ -86,14 +86,16 @@ int main(int argc, char **argv)
 		pic[i] = (pVector*)calloc(size, sizeof(pVector));
 	}
 
+
 	char temp;
 	for (i = 0; i<size; i++)
 	{
 		for (j = 0; j<size; j++)
 		{
 			ip.read(&temp, sizeof(char));
+			
+			//pic[i][j].value &= 0377;
 			pic[i][j].value = (int)temp;
-			pic[i][j].value &= 0377;
 		}
 	}
 
