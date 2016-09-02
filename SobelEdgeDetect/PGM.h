@@ -8,7 +8,7 @@ TODO: RAW to PGM
 #include <iostream>
 #include <fstream>
 
-class PGM
+static class PGM
 {
 public:
 	 PGM(int rows, int cols);
@@ -18,7 +18,7 @@ public:
 
 	//Converts RAW image data to PGM, The flag indicates what part of the data we are interested in printing.
 
-	void PGM::toPGM(int rows, int cols, pVector** data, ofstream out, int flag = VALUE);
+	void PGM::toPGM(int rows, int cols, pVector** data, char* name, int flag = VALUE);
 
 	//Converts PGM image data to RAW
 	void toRAW(char *filename);

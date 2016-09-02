@@ -6,14 +6,18 @@
 
 PGM::PGM(int rows, int cols)
 {
-	int **image = (int**)calloc(cols, sizeof(int));
+	/*int **image = (int**)calloc(cols, sizeof(int));
 	for (int i = 0; i < cols; i++)
 		image[i] = (int*)calloc(rows, sizeof(int));
+		*/
 }
 
-void PGM::toPGM(int rows, int cols, pVector** data, ofstream out, int flag)
+void PGM::toPGM(int rows, int cols, pVector** data, char* name, int flag)
 {
 	int     i = 0, j = 0;
+	
+	ofstream out;
+	out.open(name + '.pgm', ios::out | ios::binary);
 
 	out<< "P5\n";
 	out << rows << " " << cols << "\n";
@@ -26,9 +30,9 @@ void PGM::toPGM(int rows, int cols, pVector** data, ofstream out, int flag)
 			if(flag == 0)
 				out<< (char)data[i][j].value;
 			if (flag == 1)
-				out << (char)data[i][j].peak;
+				out << (char)data[i][j].low;
 			if (flag == 2)
-				out << (char)data[i][j].lines;
+				out << (char)data[i][j].high;
 
 		}
 	}

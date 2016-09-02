@@ -15,18 +15,17 @@
 
 using namespace std;
 
-//Will be used to store the direction of the gradient and the value for the pixel.
+//Will be used to store the image found with different thresholds.
 typedef struct {
 	double mag;	//Normalized Vector length
 	int value;	//vector Length
-	int direction;//The direction of the vector
-	int peak;		//The prospective edges
-	int lines;	//The final image after all excess lines have beed removed.
+	int high;
+	int low;		
 }pVector;
 
 enum DataFlags
 {
-	VALUE = 0, PEAKS, LINES
+	VALUE = 0, LOW, HIGH
 };
 
 
