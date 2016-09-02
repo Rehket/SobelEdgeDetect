@@ -9,6 +9,25 @@
 
 #include <stdio.h>
 #include <tchar.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+//Will be used to store the direction of the gradient and the value for the pixel.
+typedef struct {
+	double mag;	//Normalized Vector length
+	int value;	//vector Length
+	int direction;//The direction of the vector
+	int peak;		//The prospective edges
+	int lines;	//The final image after all excess lines have beed removed.
+}pVector;
+
+enum DataFlags
+{
+	VALUE = 0, PEAKS, LINES
+};
 
 
 
