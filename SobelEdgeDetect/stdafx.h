@@ -15,18 +15,7 @@
 
 using namespace std;
 
-//Will be used to store the image found with different thresholds.
-typedef struct {
-	double mag;	//Normalized Vector length
-	int value;	//vector Length
-	int high;
-	int low;		
-}pVector;
 
-enum DataFlags
-{
-	VALUE = 0, LOW, HIGH
-};
 
 
 

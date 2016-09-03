@@ -14,7 +14,8 @@ int maskx[3][3] = { { -1,0,1 },{ -2,0,2 },{ -1,0,1 } };
 int masky[3][3] = { { 1,2,1 },{ 0,0,0 },{ -1,-2,-1 } };
 double ival[256][256], maxival;
 
-pVector **pic;	//The pointer to our image.
+
+//pVector **pic;	//The pointer to our image.
 
 
 void toPGM(int rows, int cols, pVector** data, char* name, int flag = VALUE)
@@ -57,19 +58,19 @@ int main(int argc, char **argv)
 	string foo;
 	int i, j, p, q, mr, sum1, sum2, size = DIMENSIONS;
 	double thresholdH, thresholdL;
-	ifstream ip;
+	
 	ofstream op;
-	char *fileName, *outName; // First Arg is File name. Second is output file, Third is threshold.
+	char *fileName, *outName, *inName; // First Arg is File name. Second is output file, Third is threshold.
 	
 
 	argc--; argv++;
-	fileName = *argv;
-	ip.open(fileName, ios::in|ios::binary);
-	
+	inName = *argv;
+	//ip.open(fileName, ios::in|ios::binary);
+	cout << inName;
+	cout << "\n";
 	argc--; argv++;
 	outName = *argv;
-	
-
+	cout << outName;
 
 	argc--; argv++;
 	fileName = *argv;
@@ -79,37 +80,9 @@ int main(int argc, char **argv)
 	fileName = *argv;
 	thresholdL = atof(fileName); //Threshold
 
-	pic = (pVector**)calloc(size, sizeof(pVector));
-
-	for (i = 0; i < size; i++)
-	{
-		pic[i] = (pVector*)calloc(size, sizeof(pVector));
-	}
-
-
-	char temp;
-	for (i = 0; i<size; i++)
-	{
-		for (j = 0; j<size; j++)
-		{
-			ip.read(&temp, sizeof(char));
-			
-			//pic[i][j].value &= 0377;
-			pic[i][j].value = (int)temp;
-		}
-	}
-
-	//For Debugging.
-	/*for (i = 0; i<size; i++)
-	{
-		for (j = 0; j<size; j++)
-		{
-			
-			op << pic[i][j].value << " ";
-		}
-		op << "\n";
-	}
-	*/
+	//pic = (pVector**)calloc(size, sizeof(pVector));
+	PGM pic = PGM::PGM(size, size);
+	pic.fillData(inName, size);
 
 	mr = 1;
 	for (i = mr; i<256 - mr; i++)
@@ -122,8 +95,8 @@ int main(int argc, char **argv)
 			{
 				for (q = -mr; q <= mr; q++)
 				{
-					sum1 += pic[i + p][j + q].value * maskx[p + mr][q + mr];
-					sum2 += pic[i + p][j + q].value * masky[p + mr][q + mr];
+					sum1 += pic.data[i + p][j + q].value * maskx[p + mr][q + mr];
+					sum2 += pic.data[i + p][j + q].value * masky[p + mr][q + mr];
 				}
 			}
 			outpicx[i][j] = sum1;
@@ -131,42 +104,46 @@ int main(int argc, char **argv)
 		}
 	}
 
-	maxival = 0;
+
 	for (i = mr; i<256 - mr; i++)
 	{
 		for (j = mr; j<256 - mr; j++)
 		{
-			ival[i][j] = sqrt((double)((outpicx[i][j] * outpicx[i][j]) +
+			pic.data[i][j].intensity = (double)sqrt(((outpicx[i][j] * outpicx[i][j]) +
 				(outpicy[i][j] * outpicy[i][j])));
-			if (ival[i][j] > maxival)
-				maxival = ival[i][j];
-
+			if (pic.data[i][j].intensity > pic.maxIVal)
+				pic.maxIVal = (int) pic.data[i][j].intensity;
+				
 		}
 	}
 
-
-
+	pic.toText("before");
+	pic.toPGM(size, size, outName, IN);
+	
 	for (i = 0; i<256; i++)
 	{
 		for (j = 0; j<256; j++)
 		{
-			pic[i][j].value = (ival[i][j] / maxival) * 255;
-			if (pic[i][j].value > thresholdL)
+			pic.data[i][j].normalized = (int)((pic.data[i][j].intensity / pic.maxIVal) * 255);
+			if (pic.data[i][j].normalized > thresholdL)
 			{
-				pic[i][j].low = pic[i][j].value;
-				if (pic[i][j].low > thresholdH)
-					pic[i][j].high = pic[i][j].low;
+				pic.data[i][j].low = pic.data[i][j].normalized;
+				if (pic.data[i][j].low > thresholdH)
+					pic.data[i][j].high = pic.data[i][j].low;
 			}
 
 		}
 	}
+	pic.toPGM(size, size, outName, NORM);
 
-	toPGM(size, size, pic, outName, VALUE);
-	toPGM(size, size, pic, outName, LOW);
-	toPGM(size, size, pic, outName, HIGH);
+	pic.toText("after");
+	pic.toPGM(size, size, outName, LOW);
+	pic.toPGM(size, size, outName, HIGH);
+	cin >> string();
+
+	
 
 
-	ip.close();
 	op.close();
     return 0;
 }
