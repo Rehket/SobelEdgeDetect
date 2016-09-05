@@ -22,7 +22,7 @@ void MyImage::sobelEdge(int threshold, int **xM, int **yM, int maskRad)
 {
 	int i = 0, j = 0, p = 0, q = 0;
 	int sum1 = 0, sum2 = 0;
-
+	double temp = 0.0, px = 0.0, py = 0.0;
 	maxIVal = 0;
 
 
@@ -52,28 +52,29 @@ void MyImage::sobelEdge(int threshold, int **xM, int **yM, int maskRad)
 	{
 		for (j = maskRad; j < colsY - maskRad; j++)
 		{
-			data[i][j].intensity = sqrt(pow(outpicx[i][j], 2) * pow(outpicy[i][j], 2));
-			//cout << data[i][j].intensity;
-			//cout << "\t";
+			px = pow(outpicx[i][j], 2.0);
+			py = pow(outpicy[i][j], 2.0);
+			temp = sqrt(px+py);
+			data[i][j].intensity = temp;
+			
 			if (data[i][j].intensity > maxIVal)
-				maxIVal = data[i][j].intensity;
-
+				maxIVal = int(data[i][j].intensity);
 		}
 		
 	}
 
-	cout << maxIVal;
+	cout << "\n" << maxIVal << "\n";
 	cout << "\n";
-
-	toPGM(rowsX, colsY, "out", IN);
 	
 	for (i = 0; i < rowsX; i++)
 	{
 		for (j = 0; j < colsY; j++)
-		{
-			data[i][j].norm = (data[i][j].intensity / maxIVal) * 255;
-			//cout << (data[i][j].intensity / maxIVal);
-			//cout << "\n";
+		{	
+			temp = 0.0;
+			temp = (data[i][j].intensity / maxIVal);
+
+			data[i][j].norm = int(temp * 255.0);
+			
 			if (data[i][j].norm > threshold)
 			{
 				data[i][j].edge = data[i][j].norm;
@@ -81,10 +82,7 @@ void MyImage::sobelEdge(int threshold, int **xM, int **yM, int maskRad)
 
 		}
 	}
-	toText("debug Norm");
-
-	toPGM(rowsX, colsY, "Normal", NORM);
-	toPGM(rowsX, colsY, "Edges", HIGH);
+	toText("Edges");
 }
 
 void MyImage::fillData(char *fileName, int size)
@@ -99,8 +97,7 @@ void MyImage::fillData(char *fileName, int size)
 		{
 			ip.read(&temp, sizeof(temp));
 
-			//pic[i][j].value &= 0377;
-			data[i][j].value = temp;
+			data[i][j].value = (unsigned char)temp;
 		}
 	}
 	ip.close();
@@ -117,30 +114,27 @@ void MyImage::toPGM(int rows, int cols, char* fileName, int flag)
 		out.open(fileName + l + ft, ios::out | ios::binary);
 	else if (flag == HIGH)
 		out.open(fileName + h + ft, ios::out | ios::binary);
-	else if (flag == IN)
-		out.open(fileName + it + ft, ios::out | ios::binary);
 	else if (flag == NORM)
 		out.open(fileName + nom + ft, ios::out | ios::binary);
 	else
 		out.open(fileName + ft, ios::out | ios::binary);
 
 	out << "P5\n";
-	out << rowsX << " " << colsY << "\n";
+	out << rows << " " << cols << "\n";
 	out << "255" << "\n";
 
-		for (i = 0; i<rowsX; i++)
+		for (i = 0; i<rows; i++)
 		{
-			for (j = 0; j<colsY; j++)
+			for (j = 0; j<cols; j++)
 			{
 				if (flag == 0)
-					out << char(data[i][j].value);
+					out << (char)data[i][j].value;
+				if (flag == 1 || flag == 2)
+					out << (char)data[i][j].edge;
 				if (flag == IN)
-					out << char(data[i][j].intensity);
+					out << (char)data[i][j].intensity;
 				if (flag == NORM)
-					out << unsigned char(data[i][j].norm);
-				if(flag == LOW || flag == HIGH)
-					out << unsigned char(data[i][j].edge);
-
+					out << (char)data[i][j].norm;
 			}
 		}
 		out.close();
@@ -164,7 +158,7 @@ void MyImage::toPGM(int rows, int cols, char* fileName, unsigned int **arr)
 	{
 		for (j = 0; j<cols; j++)
 		{
-				out << (char)arr[i][j];
+				out << arr[i][j];
 
 		}
 	}
@@ -184,8 +178,8 @@ void MyImage::toText(char * fileName)
 	{
 		for (j = 0; j < colsY; j++)
 		{
-			out << to_string(data[i][j].norm);
-			out << "\t";
+			out << int(data[i][j].intensity);
+			out << " ";
 		}
 		out << "\n";
 	}
