@@ -21,7 +21,7 @@ SobelEdgeDetect.vcxproj.filters
     similar extensions under a specific node (for e.g. ".cpp" files are associated with the
     "Source Files" filter).
 
-SobelEdgeDetect.cpp
+Main.cpp
     This is the main application source file.
 
 /////////////////////////////////////////////////////////////////////////////
