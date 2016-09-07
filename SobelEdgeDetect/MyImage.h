@@ -21,11 +21,8 @@ typedef struct {
 //Enum Used to 
 enum DataFlags
 {
-	VALUE = 0, LOW, HIGH, TEXT, IN, NORM
+	VALUE = 0, EDGE, TEXT, IN, NORM
 };
-
-static unsigned int defaultMaskX[3][3] = { { -1,0,1 },{ -2,0,2 },{ -1,0,1 } };
-static unsigned int defaultMaskY[3][3] = { { 1,2,1 },{ 0,0,0 },{ -1,-2,-1 } };
 
 
 
@@ -34,36 +31,34 @@ class MyImage
 public:
 	//The image Data
 	pVector **data;
-
-	double maxIVal = 0;
+	int maxIVal = 0;
 	int **outPicX;
 	int **outPicY;
-	int dMaskRadius = 1;
 	int outpicx[256][256];
 	int outpicy[256][256];
-	MyImage(int rows, int cols);
+	MyImage(const int rows, const int cols);
 	~MyImage();
 
 	//Looks for edges using the sobel edge detection algorithim located at http://www.cs.ucf.edu/courses/cap4453/progs/sobel.c
 	//The image data is the edge variable of the data matrix.
-	void sobelEdge(int threshold = 0, int **xM = NULL, int **yM = NULL, int maskRad = 1);
+	void sobelEdge(int _threshold = 0, int **_xM = NULL, int **_yM = NULL, int _maskRad = 1);
 
 	//Reads the Raw Image data from the file in the program directory.
-	void fillData(char *fileName, int size);
+	void fillPGM(char *_fileName, int _size);
 
 	//Converts image data to PGM, The flag indicates what part of the data we are interested in printing.
-	void toPGM(int rows, int cols, char* name, int flag = VALUE);
+	void toPGM(int _rows, int _cols, char* _name, string _threshold, int _flag = VALUE);
 
 	//Array to PGM
-	void toPGM(int rows, int cols, char* fileName, unsigned int **arr);
+	void toPGM(int _rows, int _cols, char* _fileName, unsigned int **_arr);
 
 	//Converts PGM image data to 8-Bit Binary data.
-	void toBin8(char *filename);
+	void toBin8(char *_filename);
 
 	//Prints the PGM to file in plain text. The parameter is the desired name for the file.
-	void toText(char *fileName);
+	void toText(char *_fileName);
 
-	void toText(char * fileName, unsigned int** ar);
+	void toText(char * _fileName, unsigned int** _ar);
 
 private:
 	int rowsX, colsY;

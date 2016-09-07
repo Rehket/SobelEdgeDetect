@@ -9,8 +9,8 @@
 using namespace std;
 
 const int DIMENSIONS = 256;
-int maskx[3][3] = { { -1,0,1 },{ -2,0,2 },{ -1,0,1 } };
-int masky[3][3] = { { 1,2,1 },{ 0,0,0 },{ -1,-2,-1 } };
+//int maskx[3][3] = { { -1,0,1 },{ -2,0,2 },{ -1,0,1 } };
+//int masky[3][3] = { { 1,2,1 },{ 0,0,0 },{ -1,-2,-1 } };
 
 
 
@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 {
 	string foo;
 	int i, j, p, q, mr, sum1, sum2, size = DIMENSIONS;
-	double thresholdH, thresholdL;
+	double threshold;
 	
 	ofstream op;
 	char *thresh, *outName, *inName; // First Arg is File name. Second is output file, Third is threshold.
@@ -34,38 +34,30 @@ int main(int argc, char **argv)
 	//The Output file name
 	argc--; argv++;
 	outName = *argv;
-	cout << outName;
 
-
+	MyImage pic = MyImage::MyImage(size, size);
+	pic.fillPGM(inName, size);
 	argc--; argv++;
-	thresh = *argv;
-	thresholdH = atof(thresh); //Threshold
+	while (argc > 0) 
+	{
+		thresh = *argv;
+		threshold = atof(thresh);
+		pic.sobelEdge(threshold, NULL, NULL, 1);
+		pic.toPGM(size, size, outName, thresh, EDGE);
+		argc--; argv++;
+	}
 
-	argc--; argv++;
-	thresh = *argv;
-	thresholdL = atof(thresh); //Threshold
+
+
 
 	//pic = (pVector**)calloc(size, sizeof(pVector));
-	MyImage pic = MyImage::MyImage(size, size);
-	pic.fillData(inName, size);
+	
 
-	pic.toPGM(size, size, "Input File", VALUE);
-
-	pic.sobelEdge(10, NULL, NULL, 1);
-
-	/*pic.toPGM(size, size, outName, VALUE);
-
-	pic.toPGM(size, size, outName, NORM);
+	//pic.toPGM(size, size, "Input File", VALUE);
 
 	
-	pic.toPGM(size, size, outName, LOW);
-
-	pic.sobelEdge(thresholdH, NULL, NULL, 1);
-	pic.toPGM(size, size, outName, HIGH);
-	*/
-	cin >> string();
-
-	
+	//pic.sobelEdge(thresholdL, NULL, NULL, 1);
+	//pic.toPGM(size, size, outName, LOW);
 
 
 	op.close();

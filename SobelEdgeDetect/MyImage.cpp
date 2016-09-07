@@ -4,43 +4,52 @@
 #include <iostream>
 #include <fstream>
 
+
 //Builds a Image Object
-MyImage::MyImage(int rows, int cols)
+MyImage::MyImage(int _rows, int _cols)
 {
-	rowsX = rows;
-	colsY = cols;
-	data = (pVector**)calloc(cols, sizeof(pVector));
-	for (int i = 0; i < cols; i++)
-		data[i] = (pVector*)calloc(rows, sizeof(pVector));
+	rowsX = _rows;
+	colsY = _cols;
+	//data = new pVector *[rowsX]; //C++ method for memory allocation. Needs to be fixed.
+	//for (int i = 0; i < _cols; i++) data[i] = new pVector[colsY];
+	data = (pVector**)calloc(_cols, sizeof(pVector));
+	for (int i = 0; i < _cols; i++)
+		data[i] = (pVector*)calloc(_rows, sizeof(pVector));
 		
 }
 
 //Default Destructor
 MyImage::~MyImage() {}
 
-void MyImage::sobelEdge(int threshold, int **xM, int **yM, int maskRad)
+
+/*Edge detection using the Sobel algorithim. 
+*/
+void MyImage::sobelEdge(int _threshold, int **_xM, int **_yM, int _maskRad)
 {
+	//default mask and mask radius for the sobel algorithm.
+	int defaultMaskX[3][3] = { { -1,0,1 },{ -2,0,2 },{ -1,0,1 } };
+	int defaultMaskY[3][3] = { { 1,2,1 },{ 0,0,0 },{ -1,-2,-1 } };
+	int dMaskRadius = 1;
 	int i = 0, j = 0, p = 0, q = 0;
 	int sum1 = 0, sum2 = 0;
 	double temp = 0.0, px = 0.0, py = 0.0;
 	maxIVal = 0;
+	
 
 
-
-
-	for (i = maskRad; i < rowsX - maskRad; i++)
+	//The image is convolved with a 3x3 x and y mask. 
+	for (i = _maskRad; i < rowsX - _maskRad; i++)
 	{
-		for (j = maskRad; j < colsY - maskRad; j++)
+		for (j = _maskRad; j < colsY - _maskRad; j++)
 		{
 			sum1 = 0;
 			sum2 = 0;
-			for (p = -maskRad; p <= maskRad; p++)
+			for (p = -_maskRad; p <= _maskRad; p++)
 			{
-				for (q = -maskRad; q <= maskRad; q++)
+				for (q = -_maskRad; q <= _maskRad; q++)
 				{
-					sum1 += data[i + p][j + q].value * defaultMaskX[p + maskRad][q + maskRad];
-					
-					sum2 += data[i + p][j + q].value * defaultMaskY[p + maskRad][q + maskRad];
+					sum1 += data[i + p][j + q].value * defaultMaskX[p + _maskRad][q + _maskRad];	
+					sum2 += data[i + p][j + q].value * defaultMaskY[p + _maskRad][q + _maskRad];
 				}
 			}
 			outpicx[i][j] = sum1;
@@ -48,9 +57,11 @@ void MyImage::sobelEdge(int threshold, int **xM, int **yM, int maskRad)
 		}
 	}
 
-	for (i = maskRad; i < rowsX - maskRad; i++)
+	//The results of the X and Y convolution is calculated by using the distance formula where the value of each cell in 
+	// the convolution masks is combined to get the intensity matrix.
+	for (i = _maskRad; i < rowsX - _maskRad; i++)
 	{
-		for (j = maskRad; j < colsY - maskRad; j++)
+		for (j = _maskRad; j < colsY - _maskRad; j++)
 		{
 			px = pow(outpicx[i][j], 2.0);
 			py = pow(outpicy[i][j], 2.0);
@@ -62,38 +73,35 @@ void MyImage::sobelEdge(int threshold, int **xM, int **yM, int maskRad)
 		}
 		
 	}
-
-	cout << "\n" << maxIVal << "\n";
-	cout << "\n";
 	
+	//The values of the intensity matrix are normallized to between 0 and 255 before being compared to threshold. If the normalized value 
+	//exceeds the threshold, the value will be stored into the edge matix.
 	for (i = 0; i < rowsX; i++)
 	{
 		for (j = 0; j < colsY; j++)
 		{	
 			temp = 0.0;
 			temp = (data[i][j].intensity / maxIVal);
-
 			data[i][j].norm = int(temp * 255.0);
 			
-			if (data[i][j].norm > threshold)
+			if (data[i][j].norm > _threshold)
 			{
 				data[i][j].edge = data[i][j].norm;
 			}
-
 		}
 	}
-	toText("Edges");
 }
 
-void MyImage::fillData(char *fileName, int size)
+//fillData gets the PGN image data from the specified file. The image needs to have equal width and height.
+void MyImage::fillPGM(char *_fileName, int _size)
 {	
 	char temp;
 	ifstream ip;
-	ip.open(fileName, ios::in | ios::binary);
+	ip.open(_fileName, ios::in | ios::binary);
 
-	for (int i = 0; i<size; i++)
+	for (int i = 0; i<_size; i++)
 	{
-		for (int j = 0; j<size; j++)
+		for (int j = 0; j<_size; j++)
 		{
 			ip.read(&temp, sizeof(temp));
 
@@ -103,37 +111,40 @@ void MyImage::fillData(char *fileName, int size)
 	ip.close();
 }
 
-void MyImage::toPGM(int rows, int cols, char* fileName, int flag)
+
+//Saves the image as a PGM. Rows and cols are used to indicate the size of the image. The fileName parameter is what the file will be called.
+//The flag is iused to indicate what pata is saved into the pgm. 
+void MyImage::toPGM(int _rows, int _cols, char* _fileName, string _threshold, int _flag)
 {
 	int     i = 0, j = 0;
 	
 	string ft(".pgm");
-	string h("_high"), l("_low"), it("_intensity"), nom("_normalized");
+	string it("_intensity"), nom("_normalized");
 	ofstream out;
-	if (flag == LOW)
-		out.open(fileName + l + ft, ios::out | ios::binary);
-	else if (flag == HIGH)
-		out.open(fileName + h + ft, ios::out | ios::binary);
-	else if (flag == NORM)
-		out.open(fileName + nom + ft, ios::out | ios::binary);
+	
+	if (_flag == EDGE)
+		out.open(_fileName + _threshold + ft, ios::out | ios::binary);
+	else if (_flag == NORM)
+		out.open(_fileName + nom + ft, ios::out | ios::binary);
 	else
-		out.open(fileName + ft, ios::out | ios::binary);
+		out.open(_fileName + ft, ios::out | ios::binary);
 
+	//File header
 	out << "P5\n";
-	out << rows << " " << cols << "\n";
-	out << "255" << "\n";
+	out << _rows << " " << _cols << "\n";
+	out << "255" << "\n"; //Color range
 
-		for (i = 0; i<rows; i++)
+		for (i = 0; i<_rows; i++)
 		{
-			for (j = 0; j<cols; j++)
+			for (j = 0; j<_cols; j++)
 			{
-				if (flag == 0)
+				if (_flag == 0)
 					out << (char)data[i][j].value;
-				if (flag == 1 || flag == 2)
+				if (_flag == 1 )
 					out << (char)data[i][j].edge;
-				if (flag == IN)
+				if (_flag == IN)
 					out << (char)data[i][j].intensity;
-				if (flag == NORM)
+				if (_flag == NORM)
 					out << (char)data[i][j].norm;
 			}
 		}
@@ -141,38 +152,37 @@ void MyImage::toPGM(int rows, int cols, char* fileName, int flag)
 	return;
 }
 
-void MyImage::toPGM(int rows, int cols, char* fileName, unsigned int **arr)
+void MyImage::toPGM(int _rows, int _cols, char* _fileName, unsigned int **_arr)
 {
 	int     i = 0, j = 0;
 
 	string ft("_debug.pgm");
 
 	ofstream out;
-		out.open(fileName + ft, ios::out | ios::binary);
+		out.open(_fileName + ft, ios::out | ios::binary);
 
 	out << "P5\n";
-	out << rows << " " << cols << "\n";
+	out << _rows << " " << _cols << "\n";
 	out << "255" << "\n";
 
-	for (i = 0; i<rows; i++)
+	for (i = 0; i<_rows; i++)
 	{
-		for (j = 0; j<cols; j++)
+		for (j = 0; j<_cols; j++)
 		{
-				out << arr[i][j];
-
+				out << _arr[i][j];
 		}
 	}
 	out.close();
 	return;
 }
 
-void MyImage::toText(char * fileName)
+void MyImage::toText(char *_fileName)
 {
 	int i = 0, j = 0;
 
 	string txt(".txt");
 	ofstream out;
-	out.open(fileName + txt, ios::out);
+	out.open(_fileName + txt, ios::out);
 
 	for (i = 0; i < rowsX; i++)
 	{
@@ -186,19 +196,19 @@ void MyImage::toText(char * fileName)
 	out.close();
 }
 
-void MyImage::toText(char * fileName, unsigned int** ar)
+void MyImage::toText(char *_fileName, unsigned int **_ar)
 {
 	int i = 0, j = 0;
 
 	string txt(".txt");
 	ofstream out;
-	out.open(fileName + txt, ios::out);
+	out.open(_fileName + txt, ios::out);
 
 	for (i = 0; i < rowsX; i++)
 	{
 		for (j = 0; j < colsY; j++)
 		{
-			out << ar[i][j];
+			out << _ar[i][j];
 			out << " ";
 		}
 		out << "\n";
