@@ -1,4 +1,4 @@
-# SobelEdgeDetect
+# CannyEdgeDetect
 Adam Albright, UCF Robot Vsion
 
 I broke the program with a incorrect commit. I will be repairing it this evening.
