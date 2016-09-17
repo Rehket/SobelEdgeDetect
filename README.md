@@ -1,7 +1,7 @@
 # CannyEdgeDetect
 Adam Albright, UCF Robot Vsion
 
-I broke the program with a incorrect commit. I will be repairing it this evening.
+The peaks image is not correct and thus the final image needs a bit of work.
 
 My Canny Edge Detection project for Robot Vision. Sobel Code modified from the code available on http://www.cs.ucf.edu/courses/cap4453/
 
