@@ -1,10 +1,8 @@
-# SobelEdgeDetect
+# CannyEdgeDetect
 Adam Albright, UCF Robot Vsion
 
-My Edge Detection project for Robot Vision. Sobel Code modified from the code available on http://www.cs.ucf.edu/courses/cap4453/
+The peaks image is not correct and thus the final image needs a bit of work.
 
-The program can be compiled using VS2015 c++ compiler and requires 4 command arguments to run the compiled program. The first is the input file name followed by the output file name which is inturn followed by the thresholds. The thresholds should be between 0 and 255.
+My Canny Edge Detection project for Robot Vision. Sobel Code modified from the code available on http://www.cs.ucf.edu/courses/cap4453/
 
-Each threshold value entered will generate an additional image. The thresholds needs to be arranged in decending order as indicated below.
-
-SobelEdgeDetect.exe garb34 out.io 200 150 40 20 
+The final image is having some issues that will have to be fixed.
